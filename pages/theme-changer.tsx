@@ -5,12 +5,13 @@ import Cookies from 'js-cookie';
 import { GetServerSideProps } from 'next'
 import axios from 'axios';
 
+interface Props {
+    theme: string;
+}
 
-const ThemeChangerPage: FC = (props) => {
+const ThemeChangerPage: FC<Props> = ({ theme }) => {
 
-    console.log({props});
-
-    const [currentTheme, setCurrentTheme] = useState('light');
+    const [currentTheme, setCurrentTheme] = useState(theme);
 
     const onThemeChange = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedTheme = event.target.value;
@@ -22,15 +23,15 @@ const ThemeChangerPage: FC = (props) => {
     }
 
     const onClick = async () => {
-        const {data} = await axios.get('/api/hello');
-        console.log({data});
+        const { data } = await axios.get('/api/hello');
+        console.log({ data });
     }
 
     useEffect(() => {
-        console.log('Localstorage:',localStorage.getItem('theme'));
-        console.log('Cookies:',Cookies.get('theme'));
+        console.log('Localstorage:', localStorage.getItem('theme'));
+        console.log('Cookies:', Cookies.get('theme'));
     }, [])
-    
+
 
     return (
         <Layout>
@@ -63,13 +64,15 @@ const ThemeChangerPage: FC = (props) => {
 // You should use getServerSideProps when:
 // - Only if you need to pre-render a page whose data must be fetched at request time
 
-export const getServerSideProps: GetServerSideProps = async ({req}) => {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
-    const {theme='light', name= 'No name'} = req.cookies;
+    const { theme = 'light', name = 'No name' } = req.cookies;
+
+    const validThemes = ['light', 'dark', 'custom'];
 
     return {
         props: {
-            theme,
+            theme: validThemes.includes(theme) ? theme : 'dark',
             name
         }
     }
